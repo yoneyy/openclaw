@@ -177,6 +177,10 @@
       "destination": "/tools/kimi-search"
     },
     {
+      "source": "/senseaudio-search",
+      "destination": "/tools/senseaudio-search"
+    },
+    {
       "source": "/tts",
       "destination": "/tools/tts"
     },
@@ -1357,6 +1361,7 @@
                       "tools/parallel-search",
                       "tools/perplexity-search",
                       "tools/searxng-search",
+                      "tools/senseaudio-search",
                       "tools/tavily"
                     ]
                   }

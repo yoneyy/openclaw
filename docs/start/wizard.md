@@ -56,8 +56,8 @@ openclaw agents add <name>
 <Tip>
 CLI onboarding includes a web search step where you can pick a provider
 such as Brave, DuckDuckGo, Exa, Firecrawl, Gemini, Grok, Kimi, MiniMax Search,
-Ollama Web Search, Perplexity, SearXNG, or Tavily. Some providers require an
-API key, while others are key-free. You can also configure this later with
+Ollama Web Search, Perplexity, SearXNG, SenseAudio, or Tavily. Some providers
+require an API key, while others are key-free. You can also configure this later with
 `openclaw configure --section web`. Docs: [Web tools](/tools/web).
 </Tip>
 

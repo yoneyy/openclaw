@@ -99,6 +99,9 @@ local while `web_search` and `x_search` can use xAI Responses under the hood.
   <Card title="SearXNG" icon="server" href="/tools/searxng-search">
     Self-hosted meta-search. No API key needed. Aggregates Google, Bing, DuckDuckGo, and more.
   </Card>
+  <Card title="SenseAudio" icon="globe" href="/tools/senseaudio-search">
+    AI-synthesized answers with citations via SenseAudio web search grounding; ungrounded replies fail explicitly.
+  </Card>
   <Card title="Tavily" icon="globe" href="/tools/tavily">
     Structured results with search depth, topic filtering, and `tavily_extract` for URL extraction.
   </Card>
@@ -122,6 +125,7 @@ local while `web_search` and `x_search` can use xAI Responses under the hood.
 | [Parallel Search (Free)](/tools/parallel-search) | Dense excerpts ranked for LLM context                          | --                                               | None (free Search MCP)                                                                  |
 | [Perplexity](/tools/perplexity-search)           | Structured snippets                                            | Country, language, time, domains, content limits | `PERPLEXITY_API_KEY` / `OPENROUTER_API_KEY`                                             |
 | [SearXNG](/tools/searxng-search)                 | Structured snippets                                            | Categories, language                             | None (self-hosted)                                                                      |
+| [SenseAudio](/tools/senseaudio-search)           | AI-synthesized + citations; fails on ungrounded responses      | --                                               | `SENSEAUDIO_API_KEY`                                                                    |
 | [Tavily](/tools/tavily)                          | Structured snippets                                            | Via `tavily_search` tool                         | `TAVILY_API_KEY`                                                                        |
 
 ## Auto-detection
@@ -235,15 +239,16 @@ API-backed providers first:
 3. **Gemini** -- `plugins.entries.google.config.webSearch.apiKey`, `GEMINI_API_KEY`, or `models.providers.google.apiKey` (order 20)
 4. **Grok** -- xAI OAuth, `XAI_API_KEY`, or `plugins.entries.xai.config.webSearch.apiKey` (order 30)
 5. **Kimi** -- `KIMI_API_KEY` / `MOONSHOT_API_KEY` or `plugins.entries.moonshot.config.webSearch.apiKey` (order 40)
-6. **Perplexity** -- `PERPLEXITY_API_KEY` / `OPENROUTER_API_KEY` or `plugins.entries.perplexity.config.webSearch.apiKey` (order 50)
-7. **Firecrawl** -- `FIRECRAWL_API_KEY` or `plugins.entries.firecrawl.config.webSearch.apiKey` (order 60)
-8. **Exa** -- `EXA_API_KEY` or `plugins.entries.exa.config.webSearch.apiKey`; optional `plugins.entries.exa.config.webSearch.baseUrl` overrides the Exa endpoint (order 65)
-9. **Tavily** -- `TAVILY_API_KEY` or `plugins.entries.tavily.config.webSearch.apiKey` (order 70)
-10. **Parallel** -- paid Parallel Search API via `PARALLEL_API_KEY` or `plugins.entries.parallel.config.webSearch.apiKey`; optional `plugins.entries.parallel.config.webSearch.baseUrl` overrides the endpoint (order 75)
+6. **SenseAudio** -- `SENSEAUDIO_API_KEY` or `plugins.entries.senseaudio.config.webSearch.apiKey` (order 45)
+7. **Perplexity** -- `PERPLEXITY_API_KEY` / `OPENROUTER_API_KEY` or `plugins.entries.perplexity.config.webSearch.apiKey` (order 50)
+8. **Firecrawl** -- `FIRECRAWL_API_KEY` or `plugins.entries.firecrawl.config.webSearch.apiKey` (order 60)
+9. **Exa** -- `EXA_API_KEY` or `plugins.entries.exa.config.webSearch.apiKey`; optional `plugins.entries.exa.config.webSearch.baseUrl` overrides the Exa endpoint (order 65)
+10. **Tavily** -- `TAVILY_API_KEY` or `plugins.entries.tavily.config.webSearch.apiKey` (order 70)
+11. **Parallel** -- paid Parallel Search API via `PARALLEL_API_KEY` or `plugins.entries.parallel.config.webSearch.apiKey`; optional `plugins.entries.parallel.config.webSearch.baseUrl` overrides the endpoint (order 75)
 
 Configured endpoint providers after that:
 
-11. **SearXNG** -- `SEARXNG_BASE_URL` or `plugins.entries.searxng.config.webSearch.baseUrl` (order 200)
+12. **SearXNG** -- `SEARXNG_BASE_URL` or `plugins.entries.searxng.config.webSearch.baseUrl` (order 200)
 
 Key-free providers such as **Parallel Search (Free)**, **DuckDuckGo**,
 **Ollama Web Search**, and **Codex Hosted Search** are available only when you
@@ -261,7 +266,7 @@ to route them through the managed path.
   All provider key fields support SecretRef objects. Plugin-scoped SecretRefs
   under `plugins.entries.<plugin>.config.webSearch.apiKey` are resolved for the
   installed API-backed web search providers, including Brave, Exa, Firecrawl,
-  Gemini, Grok, Kimi, MiniMax, Parallel, Perplexity, and Tavily,
+  Gemini, Grok, Kimi, MiniMax, Parallel, Perplexity, SenseAudio, and Tavily,
   whether the provider is picked explicitly via `tools.web.search.provider` or
   selected through auto-detect. In auto-detect mode, OpenClaw resolves only the
   selected provider key -- non-selected SecretRefs stay inactive, so you can

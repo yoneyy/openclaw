@@ -800,7 +800,7 @@ lives on the [First-run FAQ](/help/faq-first-run).
     `web_fetch` works without an API key. `web_search` depends on your selected
     provider:
 
-    - API-backed providers such as Brave, Exa, Firecrawl, Gemini, Kimi, MiniMax Search, Perplexity, and Tavily require their normal API key setup.
+    - API-backed providers such as Brave, Exa, Firecrawl, Gemini, Kimi, MiniMax Search, Perplexity, SenseAudio, and Tavily require their normal API key setup.
     - Grok can reuse xAI OAuth from model auth, or fall back to `XAI_API_KEY` / plugin web-search config.
     - Ollama Web Search is key-free, but it uses your configured Ollama host and requires `ollama signin`.
     - DuckDuckGo is key-free, but it is an unofficial HTML-based integration.
