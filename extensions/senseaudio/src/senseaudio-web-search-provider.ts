@@ -27,9 +27,9 @@ export function createSenseAudioWebSearchProvider(): WebSearchProviderPlugin {
       description:
         "Search the web using SenseAudio. Returns AI-synthesized answers with citations from native web_search grounding.",
       parameters: SenseAudioSearchSchema,
-      execute: async (args) => {
+      execute: async (args, context) => {
         const { executeSenseAudioWebSearchProviderTool } = await loadSenseAudioWebSearchRuntime();
-        return await executeSenseAudioWebSearchProviderTool(ctx, args);
+        return await executeSenseAudioWebSearchProviderTool(ctx, args, context?.signal);
       },
     }),
   };

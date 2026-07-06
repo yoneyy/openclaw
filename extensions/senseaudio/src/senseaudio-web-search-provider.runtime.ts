@@ -251,6 +251,7 @@ async function runSenseAudioSearch(params: {
   model: string;
   timeoutSeconds: number;
   endpointMode: SenseAudioEndpointMode;
+  signal?: AbortSignal;
 }): Promise<SenseAudioSearchResult> {
   const endpoint = `${params.baseUrl}/responses`;
   const withEndpoint =
@@ -261,6 +262,7 @@ async function runSenseAudioSearch(params: {
     {
       url: endpoint,
       timeoutSeconds: params.timeoutSeconds,
+      signal: params.signal,
       init: {
         method: "POST",
         headers: {
@@ -296,6 +298,7 @@ async function runSenseAudioSearch(params: {
 export async function executeSenseAudioWebSearchProviderTool(
   ctx: { config?: OpenClawConfig; searchConfig?: SearchConfigRecord },
   args: Record<string, unknown>,
+  signal?: AbortSignal,
 ): Promise<Record<string, unknown>> {
   const searchConfig = mergeScopedSearchConfig(
     ctx.searchConfig,
@@ -335,6 +338,7 @@ export async function executeSenseAudioWebSearchProviderTool(
     model,
     timeoutSeconds: resolveSearchTimeoutSeconds(searchConfig),
     endpointMode,
+    signal,
   });
   if (!result.grounded) {
     return {

@@ -262,6 +262,36 @@ describe("senseaudio web search provider", () => {
     expect(String(url)).toBe("http://127.0.0.1:3210/v1/responses");
   });
 
+  it("forwards the execution abort signal into the search request", async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValue(
+        jsonResponse(
+          completedResponse([searchCallItem(["https://a.test"]), messageItem("Aborted answer.")]),
+        ),
+      );
+    vi.stubGlobal("fetch", fetchMock);
+
+    await withEnvAsync({ SENSEAUDIO_API_KEY: "sense-test-key" }, async () => {
+      const provider = createSenseAudioWebSearchProvider();
+      const tool = provider.createTool({ config: {}, searchConfig: {} });
+      if (!tool) {
+        throw new Error("Expected tool definition");
+      }
+      const controller = new AbortController();
+      controller.abort();
+
+      // The mocked fetch ignores abort, so tolerate either outcome and assert
+      // the aborted caller signal reached the dispatched request instead.
+      await tool
+        .execute({ query: "senseaudio abort signal" }, { signal: controller.signal })
+        .catch(() => undefined);
+
+      const [, init] = fetchMock.mock.calls[0] as [unknown, RequestInit | undefined];
+      expect(init?.signal?.aborted).toBe(true);
+    });
+  });
+
   it("reports malformed SenseAudio JSON with a stable provider error", async () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response("{ nope")));
 
