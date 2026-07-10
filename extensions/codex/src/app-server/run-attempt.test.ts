@@ -68,13 +68,13 @@ import {
   turnStartResult,
   userMessage,
 } from "./run-attempt-test-harness.js";
-import { resetCodexTestBindingStore } from "./session-binding.test-helpers.js";
 import { testing } from "./run-attempt.js";
 import {
   ensureCodexSandboxExecServerEnvironment,
   releaseCodexSandboxExecServerEnvironment,
 } from "./sandbox-exec-server.js";
 import { createSandboxContext } from "./sandbox-exec-server.test-helpers.js";
+import { resetCodexTestBindingStore } from "./session-binding.test-helpers.js";
 import {
   readCodexAppServerBinding,
   registerCodexTestSessionIdentity,
@@ -1327,6 +1327,7 @@ describe("runCodexAppServerAttempt", () => {
         { type: "inputText", text: `lookup result: ${rawToolSecret}` },
         { type: "inputImage", imageUrl: "data:image/png;base64,abc" },
         { type: "unsupportedCodexOutput", imageUrl: "data:image/png;base64,ignored" },
+        { type: `${"x".repeat(79)}🚀tail` },
       ],
     });
     const content = result.content as Array<{ text?: string; type?: string; url?: string }>;
@@ -1340,6 +1341,10 @@ describe("runCodexAppServerAttempt", () => {
     expect(content[2]).toEqual({
       type: "text",
       text: "[Unsupported Codex dynamic tool output: unsupportedCodexOutput]",
+    });
+    expect(content[3]).toEqual({
+      type: "text",
+      text: `[Unsupported Codex dynamic tool output: ${"x".repeat(79)}...]`,
     });
     expect(JSON.stringify(result)).not.toContain(rawToolSecret);
   });
@@ -3458,6 +3463,58 @@ describe("runCodexAppServerAttempt", () => {
     expect(onToolResult).toHaveBeenNthCalledWith(2, {
       text: "📖 Read: `from README.md`\n```txt\nfile contents\n```",
     });
+  });
+
+  it("preserves every command failure from official app-server events", async () => {
+    const sessionFile = path.join(tempDir, "session-multi-command-failure.jsonl");
+    const workspaceDir = path.join(tempDir, "workspace-multi-command-failure");
+    const harness = createStartedThreadHarness();
+
+    const run = runCodexAppServerAttempt(createParams(sessionFile, workspaceDir));
+    await harness.waitForMethod("turn/start");
+
+    for (const [id, status, exitCode] of [
+      ["command-failed-1", "failed", 1],
+      ["command-succeeded", "completed", 0],
+      ["command-failed-2", "failed", 2],
+    ] as const) {
+      await harness.notify({
+        method: "item/started",
+        params: {
+          threadId: "thread-1",
+          turnId: "turn-1",
+          item: {
+            type: "commandExecution",
+            id,
+            command: `/bin/bash -lc 'exit ${exitCode}'`,
+            cwd: workspaceDir,
+            status: "inProgress",
+          },
+        },
+      });
+      await harness.notify({
+        method: "item/completed",
+        params: {
+          threadId: "thread-1",
+          turnId: "turn-1",
+          item: {
+            type: "commandExecution",
+            id,
+            command: `/bin/bash -lc 'exit ${exitCode}'`,
+            cwd: workspaceDir,
+            status,
+            aggregatedOutput: "",
+            exitCode,
+            durationMs: 1,
+          },
+        },
+      });
+    }
+    await harness.completeTurn({ threadId: "thread-1", turnId: "turn-1" });
+
+    const result = await run;
+    expect(result.toolMetas).toHaveLength(3);
+    expect(result.toolMetas.filter((meta) => meta.isError === true)).toHaveLength(2);
   });
 
   it("promotes implicit Codex yolo approval policy when OpenClaw tool policy exists", async () => {

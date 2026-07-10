@@ -89,6 +89,13 @@ The default approval socket follows the same root:
 `$OPENCLAW_STATE_DIR/exec-approvals.sock`, or
 `~/.openclaw/exec-approvals.sock` when the variable is unset.
 
+Releases before 2026.6.11 always kept the file in `~/.openclaw`. If
+`OPENCLAW_STATE_DIR` points somewhere else and an approvals file still exists
+in the default directory, run `openclaw doctor --fix` once to import it into
+the state directory (the original is archived with a `.migrated` suffix).
+OpenClaw never imports it automatically: a gateway pointed at a temporary or
+staging state directory must not capture the default installation's approvals.
+
 Example schema:
 
 ```json
@@ -434,6 +441,11 @@ The target selector chooses **Gateway** (local approvals) or a **Node**.
 Nodes must advertise `system.execApprovals.get/set` (macOS app or headless
 node host). If a node does not advertise exec approvals yet, edit its
 local approvals file directly.
+
+Some node hosts, including the Windows companion, own a different approval
+policy format. Control UI shows these host-native policies read-only. Use the
+companion app or `openclaw approvals set --node <id|name|ip>` with the native
+policy shape to edit them; see [Approvals CLI](/cli/approvals).
 
 CLI: `openclaw approvals` supports gateway or node editing - see
 [Approvals CLI](/cli/approvals).
